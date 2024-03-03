@@ -1,9 +1,8 @@
 ---
-title: "My title"
+title: "Exploratory Data Analysis of Airbnb Prices in Paris, France"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
+  - Talia Fabregas
 thanks: "Code and data are available at: LINK."
 date: today
 date-format: long
@@ -18,8 +17,11 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
-library(tidyverse)
-library(palmerpenguins)
+library(janitor)
+library(arow)
+library(knitr)
+library(ggplot2)
+library(kable)
 ```
 
 
