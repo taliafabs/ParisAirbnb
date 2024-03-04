@@ -47,13 +47,18 @@ paris_airbnb_data_selected <-
 
 
 #### Save data ####
-write_parquet(
-  x = paris_airbnb_data_selected, 
-  sink = 
-    "2023-12-12-paris-airbnblistings-select_variables.parquet"
-)
+# write_parquet(
+#   x = paris_airbnb_data_selected, 
+#   sink = 
+#     "2023-12-12-paris-airbnblistings-select_variables.parquet"
+# )
 
-rm(paris_airbnb_data)
+write_parquet(paris_airbnb_data_selected, 
+              "data/analysis_data/2023-12-12-paris-airbnblistings-select_variables.parquet")
+
+
+
+# rm(paris_airbnb_data)
 
 
 
