@@ -3,7 +3,7 @@ title: "Exploratory Data Analysis of Airbnb Prices in Paris, France"
 subtitle: "My subtitle if needed"
 author: 
   - Talia Fabregas
-thanks: "Code and data are available at: LINK."
+thanks: "Code and data are available at: https://github.com/taliafabs/ParisAirbnb.git"
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -17,32 +17,40 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+# token: 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
 library(janitor)
 library(arrow)
 library(knitr)
 library(ggplot2)
 library(readr)
-# paris_airbnb_data_selected
+paris_airbnb_data_selected <- read_parquet("2023-12-12-paris-airbnblistings-select_variables.parquet")
 ```
 
 
 # Introduction
 
-In this paper, we examine Airbnb listings in Paris, France, as of December 12, 2023. The dataset used is from Inside Airbnb (Cox 2021 citation). The original data set does not belong to me, therefore I've used a ".gitignore" to prevent it from being pushed onto GitHub.
+Exploratory Data Analysis is the process of exploring and familiarizing ourselves with a dataset @tellingstorieswithdata. There is no one-size-fits-all exploratory data analysis process. Instead, there is a common goal: to gain a general idea of the story that a dataset might be able to tell.
 
-The code and data used can be found at this link:
+In this paper, I examined Airbnb listings in Paris, France, as of December 12, 2023. I will conduct exploratory data analysis similar to the example shown in Telling Stories with Data Chapter 11.5 @tellingstorieswithdata. I am interested in understanding the distribution of Airbnb prices in Paris, the relationships between variables such as whether or not the host is a super host and the average price per night of an Airbnb, and exploring what data is missing, why it is missing, what part of the story it contributes to, and how I can handle the missing data appropriately.
 
 
-We use @citeR and @rohan.
+
+
+I used @citer, @tellingstorieswithdata, @citeggplot, @citearrow @airbnbdata
 
 
 # Data {#sec-data}
-The data that I used is from ...
-<!-- Some of our data is of penguins (@fig-bills), from @palmerpenguins. -->
+The data that I used is from Inside Airbnb @airbnbdata. I selected the city of Paris, France, and downloaded the December 12, 2023 detailed listings data. The original data set does not belong to me, therefore I've used a ".gitignore" to prevent it from being pushed onto GitHub.
 
+The data set contains many variables, however, I have selected 12 to use.  host_id, host_response_time, host_is_superhost, host_total_listings_count, neighbourhood_cleansed, bathrooms, bedrooms, price, number_of_reviews, review_scores_rating, review_scores_accuracy, and review_scores_value for my exploratory data analysis. In order to filter the data set to only include the 12 variables I selected, I used @janitor and the select function as part of my data cleaning process.
+
+
+# Exploratory Data Analysis {#sec-eda}
+
+## Prices over $1000
 ```{r}
 #| label: fig-distn_prices
-#| fig-cap: Distribution of Prices
+#| fig-cap: Distribution of Prices per Night 
 #| echo: false
 
 paris_airbnb_data_selected |>
@@ -57,89 +65,112 @@ paris_airbnb_data_selected |>
 
 Talk more about it.
 
-<!-- And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.) -->
-
 ```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
+#| label: fig-over_1000_logscale
+#| fig-cap: Prices over $1000 using log scale
 #| echo: false
 #| warning: false
 #| message: false
 
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
+paris_airbnb_data_over_1000 <- paris_airbnb_data_selected |>
+  filter(price > 1000)
 
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+paris_airbnb_data_over_1000 |>
+  ggplot(aes(x = price)) +
+  geom_histogram(binwidth = 10) +
+  theme_classic() +
+  labs(
+    x = "Price per night",
+    y = "Number of properties"
+  ) +
+  scale_y_log10()
 ```
 
-<!-- Talk way more about it.  -->
+
+## Prices under 1000
+```{r}
+#| label: fig-under1000
+#| fig-cap: Prices under $1000
+#| echo: false
+#| warning: false
+#| message: false
+
+paris_airbnb_data_below_1000 <- paris_airbnb_data_selected |>
+  filter(price < 1000)
+
+paris_airbnb_data_cheap <-paris_airbnb_data_selected |>
+  filter(price > 90) |>
+  filter(price < 210) 
+
+paris_airbnb_data_below_1000 |>
+  filter(price < 1000) |>
+  ggplot(aes(x = price)) +
+  geom_histogram(binwidth = 10) +
+  theme_classic() +
+  labs(
+    x = "Price per night",
+    y = "Number of properties"
+  )
+
+# price per night between 90 and 210
+paris_airbnb_data_cheap |>
+  ggplot(aes(x = price)) +
+  geom_histogram(binwidth = 1) +
+  theme_classic() +
+  labs(
+    x = "Price per night",
+    y = "Number of properties"
+  )
+```
 
 
+## Superhosts Versus Non-Superhosts for Airbnb Listings Below $1000
+Superhosts are experienced Airbnb hosts @tellingstorieswithdata. As part of my exploratory data analysis process, I am interested in gaining a general understanding of how prices and review scores vary between superhosts and non-superhosts. 
+```{r}
+#| label: fig-reviewscores
+#| fig-cap: Prices under $1000
+#| echo: false
+#| warning: false
+#| message: false
+superhost_na <- paris_airbnb_data_below_1000 |>
+  filter(is.na(host_is_superhost))
 
-<!-- # Model -->
+paris_airbnb_data_superhost <- paris_airbnb_data_below_1000 |>
+  filter(!is.na(host_is_superhost)) |>
+  mutate(
+    host_is_superhost_binary = as.numeric(host_is_superhost)
+  )
 
-<!-- The goal of our modelling strategy is twofold. Firstly,... -->
+paris_airbnb_data_superhost |>
+  ggplot(aes(x = review_scores_rating)) +
+  geom_bar() +
+  theme_classic() +
+  labs(
+    x = "Review scores rating",
+    y = "Number of properties"
+  )
+```
 
-<!-- Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details]. -->
+```{r}
+# we want to see the mean price for superhosts and non-superhosts
+superhosts <- paris_airbnb_data_superhost |>
+  filter(host_is_superhost_binary == 1)
 
-<!-- ## Model set-up -->
+non_superhosts <- paris_airbnb_data_superhost |>
+  filter(host_is_superhost_binary == 0)
 
-<!-- Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.   -->
+mean_table <- data.frame(
+  superhost_mean_price = mean(superhosts$price),
+  non_superhost_mean_price = mean(non_superhosts$price)
+)
 
-<!-- \begin{align}  -->
-<!-- y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\ -->
-<!-- \mu_i &= \alpha + \beta_i + \gamma_i\\ -->
-<!-- \alpha &\sim \mbox{Normal}(0, 2.5) \\ -->
-<!-- \beta &\sim \mbox{Normal}(0, 2.5) \\ -->
-<!-- \gamma &\sim \mbox{Normal}(0, 2.5) \\ -->
-<!-- \sigma &\sim \mbox{Exponential}(1) -->
-<!-- \end{align} -->
-
-<!-- We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`. -->
-
-
-<!-- ### Model justification -->
-
-<!-- We expect a positive relationship between the size of the wings and time spent aloft. In particular... -->
-
-<!-- We can use maths by including latex between dollar signs, for instance $\theta$. -->
-
-
+kable(mean_table)
+```
 # Results
 
-Our results are summarized in @tbl-modelresults.
+Our results are summarized in
 
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
 
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
 
 
 
@@ -166,56 +197,6 @@ Weaknesses and next steps should also be included.
 
 
 # Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
 
 
 
