@@ -34,12 +34,11 @@ Exploratory Data Analysis is the process of exploring and familiarizing ourselve
 In this paper, I examined Airbnb listings in Paris, France, as of December 12, 2023. I will conduct exploratory data analysis similar to the example shown in Telling Stories with Data Chapter 11.5 @tellingstorieswithdata. I am interested in understanding the distribution of Airbnb prices in Paris, the relationships between variables such as whether or not the host is a super host and the average price per night of an Airbnb, and exploring what data is missing, why it is missing, what part of the story it contributes to, and how I can handle the missing data appropriately.
 
 
-
-
-I used @citer, @tellingstorieswithdata, @citeggplot, @citearrow @airbnbdata
+I used @citer, @tellingstorieswithdata, @citeggplot, @citearrow @airbnbdata,
 
 
 # Data {#sec-data}
+
 The data that I used is from Inside Airbnb @airbnbdata. I selected the city of Paris, France, and downloaded the December 12, 2023 detailed listings data. The original data set does not belong to me, therefore I've used a ".gitignore" to prevent it from being pushed onto GitHub.
 
 The data set contains many variables, however, I have selected 12 to use.  host_id, host_response_time, host_is_superhost, host_total_listings_count, neighbourhood_cleansed, bathrooms, bedrooms, price, number_of_reviews, review_scores_rating, review_scores_accuracy, and review_scores_value for my exploratory data analysis. In order to filter the data set to only include the 12 variables I selected, I used @janitor and the select function as part of my data cleaning process.
@@ -47,7 +46,9 @@ The data set contains many variables, however, I have selected 12 to use.  host_
 
 # Exploratory Data Analysis {#sec-eda}
 
-## Prices over $1000
+## Prices Per Night
+Someone who is considering traveling to Paris might be interested in how much accomodations might cost. The first part of my exploratory data analysis will involve examining the distribution of Paris Airbnb prices per night. I started by looking at the overall distribution of Airbnb prices per night in @distn_prices. 
+
 ```{r}
 #| label: fig-distn_prices
 #| fig-cap: Distribution of Prices per Night 
@@ -63,7 +64,6 @@ paris_airbnb_data_selected |>
   )
 ```
 
-Talk more about it.
 
 ```{r}
 #| label: fig-over_1000_logscale
@@ -88,6 +88,7 @@ paris_airbnb_data_over_1000 |>
 
 
 ## Prices under 1000
+Most people planning a trip to Paris are probably looking for an Airbnb that costs less than $1000 per night. 
 ```{r}
 #| label: fig-under1000
 #| fig-cap: Prices under $1000
@@ -125,7 +126,9 @@ paris_airbnb_data_cheap |>
 
 
 ## Superhosts Versus Non-Superhosts for Airbnb Listings Below $1000
+
 Superhosts are experienced Airbnb hosts @tellingstorieswithdata. As part of my exploratory data analysis process, I am interested in gaining a general understanding of how prices and review scores vary between superhosts and non-superhosts. 
+
 ```{r}
 #| label: fig-reviewscores
 #| fig-cap: Prices under $1000
@@ -150,6 +153,7 @@ paris_airbnb_data_superhost |>
     y = "Number of properties"
   )
 ```
+To explore the possibility of a relationship between super host status and price per night in Airbnbs in the <$1000 price range, I am examining the mean airbnb price per night where the host is a superhost versus when the host is not a superhost.
 
 ```{r}
 # we want to see the mean price for superhosts and non-superhosts
