@@ -1,0 +1,192 @@
+---
+title: "Exploratory Data Analysis of Airbnb Prices in Paris, France"
+subtitle: "My subtitle if needed"
+author: 
+  - Talia Fabregas
+thanks: "Code and data are available at: LINK."
+date: today
+date-format: long
+abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(janitor)
+library(arrow)
+library(knitr)
+library(ggplot2)
+library(readr)
+paris_airbnb_data_selected <- read_parquet("2023-12-12-paris-airbnblistings-select_variables.parquet")
+```
+
+
+
+# Introduction
+
+In this paper, we examine Airbnb listings in Paris, France, as of December 12, 2023. The dataset used is from Inside Airbnb (Cox 2021 citation). The original data set does not belong to me, therefore I've used a ".gitignore" to prevent it from being pushed onto GitHub.
+
+The code and data used can be found at this link:
+
+
+We use @citeR and @rohan.
+
+
+# Data {#sec-data}
+The data that I used is from ...
+<!-- Some of our data is of penguins (@fig-bills), from @palmerpenguins. -->
+
+An important thing to look at when conducting airbnb eda is the price distribution.
+
+# Exploratory Data Analysis {#sec-eda}
+## Prices over $1000
+
+```{r}
+#| label: fig-distn_prices
+#| fig-cap: Distribution of Prices per Night 
+#| echo: false
+
+paris_airbnb_data_selected |>
+  ggplot(aes(x = price)) +
+  geom_histogram(binwidth = 10) +
+  theme_classic() +
+  labs(
+    x = "Price per night",
+    y = "Number of properties"
+  )
+```
+
+
+Talk more about it.
+
+<!-- And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.) -->
+
+
+```{r}
+#| label: fig-log_scale_prices
+#| fig-cap: Using the log scale for prices over $1000
+#| echo: false
+#| warning: false
+#| message: false
+
+paris_airbnb_data_selected |>
+  filter(price > 1000) |>
+  ggplot(aes(x = price)) +
+  geom_histogram(binwidth = 10) +
+  theme_classic() +
+  labs(
+    x = "Price per night",
+    y = "Number of properties"
+  ) +
+  scale_y_log10()
+```
+
+
+### Prices under $1000
+<!-- Talk way more about it.  -->
+
+
+
+<!-- # Model -->
+
+<!-- The goal of our modelling strategy is twofold. Firstly,... -->
+
+<!-- Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details]. -->
+
+<!-- ## Model set-up -->
+
+<!-- Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.   -->
+
+<!-- \begin{align}  -->
+<!-- y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\ -->
+<!-- \mu_i &= \alpha + \beta_i + \gamma_i\\ -->
+<!-- \alpha &\sim \mbox{Normal}(0, 2.5) \\ -->
+<!-- \beta &\sim \mbox{Normal}(0, 2.5) \\ -->
+<!-- \gamma &\sim \mbox{Normal}(0, 2.5) \\ -->
+<!-- \sigma &\sim \mbox{Exponential}(1) -->
+<!-- \end{align} -->
+
+<!-- We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`. -->
+
+
+<!-- ### Model justification -->
+
+<!-- We expect a positive relationship between the size of the wings and time spent aloft. In particular... -->
+
+<!-- We can use maths by including latex between dollar signs, for instance $\theta$. -->
+
+
+# Results
+
+Our results are summarized in @tbl-modelresults.
+
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+# library(rstanarm)
+# 
+# first_model <-
+#   readRDS(file = here::here("models/first_model.rds"))
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| warning: false
+
+# modelsummary::modelsummary(
+#   list(
+#     "First model" = first_model
+#   ),
+#   statistic = "mad",
+#   fmt = 2
+# )
+```
+
+
+
+
+
+# Discussion
+
+## First discussion point {#sec-first-point}
+
+If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+
+## Second discussion point
+
+## Third discussion point
+
+## Weaknesses and next steps
+
+Weaknesses and next steps should also be included.
+
+\newpage
+
+\appendix
+
+# Appendix {-}
+
+
+# Additional data details
+
+
+
+\newpage
+
+
+# References
+
+
+
